@@ -3,6 +3,7 @@ import json
 import httpx
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("API_KEY")
+GEMINI_DEBUG = os.getenv("GEMINI_DEBUG", "false").lower() == "true"
 GEMINI_URL = (
     "https://aiplatform.googleapis.com/v1/publishers/google/models/"
     "gemini-2.5-flash-lite:streamGenerateContent"
@@ -10,7 +11,9 @@ GEMINI_URL = (
 
 SYSTEM_PROMPT = """
 Jesteś ekspertem od wyceny szkód samochodowych.
-Przeanalizuj zdjęcie i zwróć JSON z listą uszkodzeń.
+Przeanalizuj zdjęcie i zwróć WYŁĄCZNIE poprawny JSON z listą uszkodzeń.
+Jeśli widzisz choć cień ryzyka uszkodzenia, dodaj pozycję o niskiej pewności.
+Nie pomijaj drobnych uszkodzeń (rys, otarć, wgniotek, pęknięć lakieru).
 
 Format odpowiedzi (tylko JSON, bez markdown):
 {
@@ -36,7 +39,64 @@ Format odpowiedzi (tylko JSON, bez markdown):
   "total_repair_estimate_pln": 650,
   "total_asm_estimate_pln": 3600
 }
+
+Zasady:
+- Odpowiedź ma być wyłącznie jednym obiektem JSON.
+- Bez komentarzy, bez markdown, bez prefiksów/sufiksów.
+- Jeśli brak widocznych szkód, zwróć pustą listę damages i koszty 0.
 """
+
+
+def _empty_result(extra: dict | None = None) -> dict:
+    result = {
+        "damages": [],
+        "hidden_damage_predictions": [],
+        "total_repair_estimate_pln": 0,
+        "total_asm_estimate_pln": 0,
+    }
+    if extra:
+        result.update(extra)
+    return result
+
+
+def _extract_first_json_object(text: str) -> str | None:
+    """
+    Wyciąga pierwszy poprawny blok JSON {...} z tekstu.
+    Działa nawet gdy model doda otaczający tekst.
+    """
+    if not text:
+        return None
+
+    start = text.find("{")
+    if start == -1:
+        return None
+
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(text)):
+        ch = text[i]
+
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+
+        if ch == '"':
+            in_string = True
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+
+    return None
 
 
 async def analyze_frame(frame_base64: str, car_model: str) -> dict:
@@ -56,22 +116,24 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
                         }
                     },
                     {
-                        "text": f"Samochód: {car_model}. Zidentyfikuj wszystkie widoczne uszkodzenia."
+                        "text": (
+                            f"Samochód: {car_model}. "
+                            "Zidentyfikuj wszystkie widoczne uszkodzenia i podaj realistyczną wycenę "
+                            "naprawy (nie tylko ASO). Uwzględnij opcję naprawy zamiast wymiany, jeśli ma sens."
+                        )
                     },
                 ]
             }
         ],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1024},
+        "generationConfig": {
+            "temperature": 0.1,
+            "maxOutputTokens": 2048,
+            "responseMimeType": "application/json",
+        },
     }
 
     if not GEMINI_API_KEY:
-        return {
-            "damages": [],
-            "hidden_damage_predictions": [],
-            "total_repair_estimate_pln": 0,
-            "total_asm_estimate_pln": 0,
-            "error": "Missing GEMINI_API_KEY",
-        }
+        return _empty_result({"error": "Missing GEMINI_API_KEY"})
 
     async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.post(
@@ -113,25 +175,24 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
             if text:
                 raw_text_parts.append(text)
 
-    raw_text = "\n".join(raw_text_parts).strip()
+    # Dla streamGenerateContent chunki mogą dzielić tokeny w środku stringów JSON,
+    # więc łączymy bez separatora, aby nie psuć składni.
+    raw_text = "".join(raw_text_parts).strip()
     if not raw_text:
-        return {
-            "damages": [],
-            "hidden_damage_predictions": [],
-            "total_repair_estimate_pln": 0,
-            "total_asm_estimate_pln": 0,
-        }
+        return _empty_result({"error": "Gemini returned empty text"})
 
     # Usuń ewentualne ```json bloki
     clean = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
+    extracted = _extract_first_json_object(clean) or clean
 
     try:
-        return json.loads(clean)
+        parsed = json.loads(extracted)
+        if not isinstance(parsed, dict):
+            return _empty_result({"error": "Gemini response is not a JSON object"})
+        return parsed
     except json.JSONDecodeError:
-        # Fallback – zwróć pusty wynik zamiast crashować
-        return {
-            "damages": [],
-            "hidden_damage_predictions": [],
-            "total_repair_estimate_pln": 0,
-            "total_asm_estimate_pln": 0,
-        }
+        # Fallback diagnostyczny – łatwiej zobaczyć czemu model nie zwrócił poprawnego JSON
+        extra = {"error": "Gemini JSON parse error"}
+        if GEMINI_DEBUG:
+            extra["gemini_raw_preview"] = raw_text[:1200]
+        return _empty_result(extra)
