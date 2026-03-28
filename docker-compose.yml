@@ -1,0 +1,52 @@
+services:
+  # ─── 1. FISHJAM – WebRTC server ───────────────────────────────────────────
+  fishjam:
+    image: ghcr.io/fishjam-dev/fishjam:latest # poprawiona nazwa
+    ports:
+      - "5002:5002" # HTTP API
+      - "5003:5003" # WebRTC signaling
+    environment:
+      FJ_HOST: "localhost:5002"
+      FJ_SERVER_API_TOKEN: "development"
+      FJ_PORT: "5002"
+      FJ_CHECK_ORIGIN: "false"
+    networks:
+      - pitstop
+
+  # ─── 2. SMELTER – real-time video compositor ──────────────────────────────
+  smelter:
+    image: ghcr.io/software-mansion/smelter:latest # poprawiona nazwa
+    ports:
+      - "8081:8081" # HTTP API
+      - "8083:8083" # Output stream
+    volumes:
+      - ./smelter_output:/output
+    environment:
+      SMELTER_API_PORT: "8081"
+      SMELTER_FRAMERATE: "30"
+    networks:
+      - pitstop
+
+  # ─── 3. BACKEND FastAPI ───────────────────────────────────────────────────
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      FISHJAM_URL: "http://fishjam:5002"
+      FISHJAM_API_TOKEN: "development"
+      SMELTER_URL: "http://smelter:8081"
+    depends_on:
+      - fishjam
+      - smelter
+    networks:
+      - pitstop
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+networks:
+  pitstop:
+    driver: bridge
