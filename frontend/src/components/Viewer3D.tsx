@@ -66,6 +66,60 @@ const DAMAGE_POINTS = [
   },
 ];
 
+/* ─── Map Gemini bbox_hint → relative 3D position ─── */
+const BBOX_TO_RELPOSITION: Record<string, [number, number, number]> = {
+  // Polish hints (from Gemini prompt)
+  "przód":       [0.5,  0.30, 0.97],
+  "lewy-przód":  [0.10, 0.35, 0.85],
+  "prawy-przód": [0.90, 0.35, 0.85],
+  "lewy-bok":    [0.05, 0.40, 0.50],
+  "prawy-bok":   [0.95, 0.40, 0.50],
+  "lewy-tył":    [0.10, 0.40, 0.10],
+  "prawy-tył":   [0.90, 0.40, 0.10],
+  "tył":         [0.5,  0.35, 0.03],
+  "dach":        [0.5,  0.95, 0.50],
+  "podwozie":    [0.5,  0.05, 0.50],
+  // English equivalents
+  "front":       [0.5,  0.30, 0.97],
+  "front-left":  [0.10, 0.35, 0.85],
+  "front-right": [0.90, 0.35, 0.85],
+  "left-side":   [0.05, 0.40, 0.50],
+  "right-side":  [0.95, 0.40, 0.50],
+  "rear-left":   [0.10, 0.40, 0.10],
+  "rear-right":  [0.90, 0.40, 0.10],
+  "rear":        [0.5,  0.35, 0.03],
+  "roof":        [0.5,  0.95, 0.50],
+  "underbody":   [0.5,  0.05, 0.50],
+};
+
+/* ─── Types ─── */
+export interface ScanDamage {
+  part: string;
+  type: string;
+  severity: "low" | "medium" | "high";
+  repair_cost_pln: number;
+  replace_cost_asm: number;
+  can_repair: boolean;
+  bbox_hint: string;
+}
+
+function scanDamageToDamagePoint(dmg: ScanDamage, index: number): DamagePoint {
+  const relPos = BBOX_TO_RELPOSITION[dmg.bbox_hint];
+  // Add small random offset to avoid overlapping markers
+  const offset = index * 0.04;
+  return {
+    id: `scan-${index}-${dmg.part}`,
+    label: dmg.part,
+    description: dmg.type,
+    relPosition: relPos
+      ? [relPos[0] + offset * 0.1, relPos[1], relPos[2]] as [number, number, number]
+      : [0.5, 0.4, 0.5] as [number, number, number],
+    dealerPrice: dmg.replace_cost_asm,
+    marketplacePrice: dmg.repair_cost_pln,
+    severity: dmg.severity,
+  };
+}
+
 type DamagePoint = (typeof DAMAGE_POINTS)[number];
 type DamagePointWithWorldPos = DamagePoint & {
   position: [number, number, number];
@@ -328,11 +382,13 @@ function Scene({
   showDamageMarkers,
   selectedDamage,
   onSelectDamage,
+  damagePoints,
 }: {
   hasBodyDamage: boolean;
   showDamageMarkers: boolean;
   selectedDamage: string | null;
   onSelectDamage: (id: string) => void;
+  damagePoints: DamagePoint[];
 }) {
   const [carBounds, setCarBounds] = useState<THREE.Box3 | null>(null);
 
@@ -342,7 +398,7 @@ function Scene({
 
   // Compute world positions from relative [0..1] coords + bounding box
   const markersWithWorldPos: DamagePointWithWorldPos[] = carBounds
-    ? DAMAGE_POINTS.map((pt) => ({
+    ? damagePoints.map((pt) => ({
         ...pt,
         position: [
           carBounds.min.x +
@@ -555,9 +611,16 @@ function DamageInfoPanel({
 /* ─── Main Viewer3D component ─── */
 export default function Viewer3D({
   hasBodyDamage = true,
+  scanDamages,
 }: {
   hasBodyDamage?: boolean;
+  scanDamages?: ScanDamage[];
 }) {
+  // If scan damages are provided, convert them to DamagePoint format
+  const activeDamagePoints: DamagePoint[] =
+    scanDamages && scanDamages.length > 0
+      ? scanDamages.map((d, i) => scanDamageToDamagePoint(d, i))
+      : DAMAGE_POINTS;
   const [showMarkers, setShowMarkers] = useState(true);
   const [selectedDamage, setSelectedDamage] = useState<string | null>(null);
 
@@ -566,7 +629,7 @@ export default function Viewer3D({
   }, []);
 
   const selectedPoint =
-    DAMAGE_POINTS.find((p) => p.id === selectedDamage) || null;
+    activeDamagePoints.find((p) => p.id === selectedDamage) || null;
 
   return (
     <div className="relative w-full h-[420px] sm:h-[560px] lg:h-[760px] xl:h-[860px]">
@@ -594,6 +657,7 @@ export default function Viewer3D({
               showDamageMarkers={showMarkers}
               selectedDamage={selectedDamage}
               onSelectDamage={handleSelectDamage}
+              damagePoints={activeDamagePoints}
             />
             <OrbitControls
               enablePan={false}
@@ -613,7 +677,9 @@ export default function Viewer3D({
       <div className="absolute top-4 left-5 right-5 flex items-start justify-between pointer-events-none z-10">
         <div className="pointer-events-auto">
           <p className="text-xs font-medium text-white/80 tracking-wide">
-            Audi A5 Sportback · 2022
+            {scanDamages && scanDamages.length > 0
+              ? `${scanDamages.length} damages from scan`
+              : "Audi A5 Sportback · 2022"}
           </p>
           <p className="text-[10px] text-white/35 mt-0.5">
             Click damage markers for price details
@@ -654,9 +720,9 @@ export default function Viewer3D({
       {showMarkers && hasBodyDamage && (
         <div className="absolute bottom-8 left-5 z-10 pointer-events-auto">
           <p className="text-[10px] font-medium text-white/45 uppercase tracking-wider mb-2">
-            Detected damage ({DAMAGE_POINTS.length})
+            Detected damage ({activeDamagePoints.length})
           </p>
-          {DAMAGE_POINTS.map((point) => {
+          {activeDamagePoints.map((point) => {
             const severityColor = {
               high: "#e54d4d",
               medium: "#d4a346",

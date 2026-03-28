@@ -4,9 +4,12 @@ import httpx
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("API_KEY")
 GEMINI_DEBUG = os.getenv("GEMINI_DEBUG", "false").lower() == "true"
+
+# Use Gemini 2.5 Flash via Google AI Studio endpoint (simpler, no Vertex required)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_URL = (
-    "https://aiplatform.googleapis.com/v1/publishers/google/models/"
-    "gemini-2.5-flash-lite:streamGenerateContent"
+    f"https://generativelanguage.googleapis.com/v1beta/models/"
+    f"{GEMINI_MODEL}:generateContent"
 )
 
 SYSTEM_PROMPT = """
@@ -25,7 +28,7 @@ Format odpowiedzi (tylko JSON, bez markdown):
       "repair_cost_pln": 150,
       "replace_cost_asm": 1800,
       "can_repair": true,
-      "bbox_hint": "lewy-przód|prawy-tył|przód|tył|etc"
+      "bbox_hint": "lewy-przód|prawy-tył|przód|tył|lewy-bok|prawy-bok|dach|podwozie"
     }
   ],
   "hidden_damage_predictions": [
@@ -102,6 +105,7 @@ def _extract_first_json_object(text: str) -> str | None:
 async def analyze_frame(frame_base64: str, car_model: str) -> dict:
     """
     Wysyła klatkę do Gemini Vision i zwraca sparsowany JSON z uszkodzeniami.
+    Uses Google AI Studio endpoint (generativelanguage.googleapis.com).
     """
     payload = {
         "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
@@ -122,7 +126,7 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
                             "naprawy (nie tylko ASO). Uwzględnij opcję naprawy zamiast wymiany, jeśli ma sens."
                         )
                     },
-                ]
+                ],
             }
         ],
         "generationConfig": {
@@ -133,20 +137,25 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
     }
 
     if not GEMINI_API_KEY:
-        return _empty_result({"error": "Missing GEMINI_API_KEY"})
+        print("[Gemini] No API key — returning mock result")
+        return _mock_result()
 
-    async with httpx.AsyncClient(timeout=15.0) as client:
-        resp = await client.post(
-            f"{GEMINI_URL}?key={GEMINI_API_KEY}",
-            headers={"Content-Type": "application/json"},
-            json=payload,
-        )
-        resp.raise_for_status()
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+                headers={"Content-Type": "application/json"},
+                json=payload,
+            )
+            resp.raise_for_status()
+    except Exception as e:
+        print(f"[Gemini] API error: {e}")
+        return _empty_result({"error": f"Gemini API error: {str(e)}"})
 
     try:
         response_json = resp.json()
     except json.JSONDecodeError:
-        # Fallback dla odpowiedzi strumieniowej/SSE (linie: data: {...})
+        # Fallback dla odpowiedzi strumieniowej/SSE
         response_json = []
         for line in resp.text.splitlines():
             if not line.startswith("data:"):
@@ -159,7 +168,7 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
             except json.JSONDecodeError:
                 continue
 
-    # streamGenerateContent może zwrócić listę chunków zamiast pojedynczego obiektu
+    # Extract candidates
     candidates = []
     if isinstance(response_json, list):
         for chunk in response_json:
@@ -175,13 +184,11 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
             if text:
                 raw_text_parts.append(text)
 
-    # Dla streamGenerateContent chunki mogą dzielić tokeny w środku stringów JSON,
-    # więc łączymy bez separatora, aby nie psuć składni.
     raw_text = "".join(raw_text_parts).strip()
     if not raw_text:
         return _empty_result({"error": "Gemini returned empty text"})
 
-    # Usuń ewentualne ```json bloki
+    # Clean markdown wrappers
     clean = raw_text.strip().removeprefix("```json").removesuffix("```").strip()
     extracted = _extract_first_json_object(clean) or clean
 
@@ -191,8 +198,79 @@ async def analyze_frame(frame_base64: str, car_model: str) -> dict:
             return _empty_result({"error": "Gemini response is not a JSON object"})
         return parsed
     except json.JSONDecodeError:
-        # Fallback diagnostyczny – łatwiej zobaczyć czemu model nie zwrócił poprawnego JSON
         extra = {"error": "Gemini JSON parse error"}
         if GEMINI_DEBUG:
             extra["gemini_raw_preview"] = raw_text[:1200]
         return _empty_result(extra)
+
+
+def _mock_result() -> dict:
+    """
+    Returns realistic mock data when no GEMINI_API_KEY is set.
+    Useful for frontend development and demo without API costs.
+    """
+    import random
+    mock_damages = [
+        {
+            "part": "Zderzak przedni",
+            "type": "zarysowanie",
+            "severity": "medium",
+            "repair_cost_pln": 450,
+            "replace_cost_asm": 2200,
+            "can_repair": True,
+            "bbox_hint": "przód",
+        },
+        {
+            "part": "Drzwi przednie prawe",
+            "type": "wgniecenie",
+            "severity": "high",
+            "repair_cost_pln": 890,
+            "replace_cost_asm": 3800,
+            "can_repair": True,
+            "bbox_hint": "prawy-bok",
+        },
+        {
+            "part": "Lampa tylna lewa",
+            "type": "pęknięcie",
+            "severity": "high",
+            "repair_cost_pln": 0,
+            "replace_cost_asm": 3200,
+            "can_repair": False,
+            "bbox_hint": "lewy-tył",
+        },
+        {
+            "part": "Próg prawy",
+            "type": "korozja",
+            "severity": "medium",
+            "repair_cost_pln": 600,
+            "replace_cost_asm": 1800,
+            "can_repair": True,
+            "bbox_hint": "prawy-bok",
+        },
+        {
+            "part": "Opony (2 szt.)",
+            "type": "zużycie",
+            "severity": "low",
+            "repair_cost_pln": 0,
+            "replace_cost_asm": 1600,
+            "can_repair": False,
+            "bbox_hint": "prawy-bok",
+        },
+    ]
+    # Return 2-4 random damages each call to simulate progressive detection
+    selected = random.sample(mock_damages, min(random.randint(2, 4), len(mock_damages)))
+    total_repair = sum(d["repair_cost_pln"] for d in selected)
+    total_asm = sum(d["replace_cost_asm"] for d in selected)
+    return {
+        "damages": selected,
+        "hidden_damage_predictions": [
+            {
+                "part": "Podłużnica prawa",
+                "probability_pct": 65,
+                "reason": "Siła uderzenia wskazuje na możliwe odkształcenie wzmocnienia",
+                "cost_pln": 1200,
+            }
+        ],
+        "total_repair_estimate_pln": total_repair,
+        "total_asm_estimate_pln": total_asm,
+    }

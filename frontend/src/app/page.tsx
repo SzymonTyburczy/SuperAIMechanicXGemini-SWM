@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, Suspense, lazy } from "react";
+import { useState, useCallback, useEffect, Suspense, lazy } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import UploadZone from "@/components/UploadZone";
 import AnalysisLoader from "@/components/AnalysisLoader";
@@ -8,11 +9,93 @@ import RepairReport from "@/components/RepairReport";
 
 const Viewer3D = lazy(() => import("@/components/Viewer3D"));
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
 export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
+  const searchParams = useSearchParams();
   const [phase, setPhase] = useState<"landing" | "analyzing" | "report">(
     "landing",
   );
   const [hasFiles, setHasFiles] = useState(false);
+  const [scanData, setScanData] = useState<Record<string, unknown> | null>(null);
+  const [liveRoomId, setLiveRoomId] = useState<string | null>(null);
+
+  // Check for scan results on mount
+  useEffect(() => {
+    const fromScan = searchParams.get("fromScan");
+    if (fromScan) {
+      // Try to load from sessionStorage first
+      const stored = sessionStorage.getItem("scanResults");
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setScanData(data);
+          setPhase("report");
+          sessionStorage.removeItem("scanResults");
+          return;
+        } catch { /* ignore */ }
+      }
+
+      // Try to load from backend
+      fetch(`${BACKEND_URL}/api/scan/${fromScan}/results`)
+        .then((r) => r.json())
+        .then((data) => {
+          setScanData(data);
+          setPhase("report");
+        })
+        .catch(() => {
+          // Fall back to demo mode
+          setPhase("report");
+        });
+    }
+
+    // Check for live scan WebSocket connection
+    const liveRoom = searchParams.get("liveRoom");
+    if (liveRoom) {
+      setLiveRoomId(liveRoom);
+      connectLiveViewer(liveRoom);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // Live viewer WebSocket connection
+  const connectLiveViewer = useCallback((roomId: string) => {
+    const wsUrl = BACKEND_URL.replace("http://", "ws://").replace(
+      "https://",
+      "wss://",
+    );
+    const ws = new WebSocket(`${wsUrl}/ws/scan/${roomId}`);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ role: "viewer" }));
+    };
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (
+        msg.type === "damage_update" ||
+        msg.type === "current_state" ||
+        msg.type === "scan_complete"
+      ) {
+        setScanData(msg.data);
+        if (phase !== "report") {
+          setPhase("report");
+        }
+      }
+    };
+
+    return () => ws.close();
+  }, [phase]);
+
 
   const handleFilesReady = useCallback((files: unknown[]) => {
     if (files.length > 0) {
@@ -103,6 +186,28 @@ export default function Home() {
                   </svg>
                   Watch demo
                 </button>
+
+                <a
+                  href="/scan"
+                  className="ghost-btn"
+                  style={{
+                    borderColor: "rgba(74,158,255,0.3)",
+                    color: "#4a9eff",
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  Real-time scan
+                </a>
               </div>
 
               {/* Quick stats */}
@@ -231,6 +336,56 @@ export default function Home() {
       {/* ─── REPORT + 3D ─── */}
       {phase === "report" && (
         <div className="pt-20">
+          {/* Live scan banner */}
+          {liveRoomId && (
+            <div
+              className="max-w-[96rem] mx-auto px-6 mb-4"
+            >
+              <div
+                className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                style={{
+                  background: "rgba(74,158,255,0.08)",
+                  border: "1px solid rgba(74,158,255,0.2)",
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full scanner-live-dot"
+                  style={{ background: "#4a9eff" }}
+                />
+                <p className="text-xs text-[#4a9eff]">
+                  Live scan connected · Room {liveRoomId}
+                </p>
+                {scanData && (
+                  <span className="text-xs text-white/40 ml-auto">
+                    {(scanData as Record<string, unknown>).damages
+                      ? `${((scanData as Record<string, unknown>).damages as unknown[]).length} damages`
+                      : "Waiting for data..."}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Scan source badge */}
+          {scanData && !liveRoomId && (
+            <div className="max-w-[96rem] mx-auto px-6 mb-4">
+              <div
+                className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                style={{
+                  background: "rgba(76,175,120,0.08)",
+                  border: "1px solid rgba(76,175,120,0.2)",
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4caf78" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <p className="text-xs text-[#4caf78]">
+                  Results from real-time camera scan
+                </p>
+              </div>
+            </div>
+          )}
+
           <section id="viewer-section" className="py-8 scroll-mt-20">
             <div className="max-w-[96rem] mx-auto px-6">
               <div className="mb-6 flex items-center justify-between">
@@ -239,12 +394,20 @@ export default function Home() {
                     3D Vehicle Visualization
                   </h2>
                   <p className="text-xs text-white/35">
-                    Audi A5 2022 with detected damage markers
+                    {scanData
+                      ? `${(scanData as Record<string, unknown>).carModel || "Vehicle"} with ${
+                          ((scanData as Record<string, unknown>).damages as unknown[])?.length || 0
+                        } detected damages`
+                      : "Audi A5 2022 with detected damage markers"}
                   </p>
                 </div>
                 <button
                   id="new-analysis-btn"
-                  onClick={() => setPhase("landing")}
+                  onClick={() => {
+                    setPhase("landing");
+                    setScanData(null);
+                    setLiveRoomId(null);
+                  }}
                   className="ghost-btn text-[13px]"
                 >
                   ← New analysis
@@ -285,7 +448,22 @@ export default function Home() {
                     </div>
                   }
                 >
-                  <Viewer3D hasBodyDamage={true} />
+                  <Viewer3D
+                    hasBodyDamage={true}
+                    scanDamages={
+                      scanData?.damages
+                        ? (scanData.damages as Array<{
+                            part: string;
+                            type: string;
+                            severity: "low" | "medium" | "high";
+                            repair_cost_pln: number;
+                            replace_cost_asm: number;
+                            can_repair: boolean;
+                            bbox_hint: string;
+                          }>)
+                        : undefined
+                    }
+                  />
                 </Suspense>
               </div>
             </div>

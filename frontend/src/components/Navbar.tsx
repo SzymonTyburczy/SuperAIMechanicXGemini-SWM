@@ -54,11 +54,16 @@ export default function Navbar() {
             { href: "#upload", label: "Analysis" },
             { href: "#report", label: "Report" },
             { href: "#how", label: "How it works" },
+            { href: "/scan", label: "Live Scan" },
           ].map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="text-[13px] font-medium text-white/45 hover:text-white transition-colors duration-200 tracking-wide"
+              className={`text-[13px] font-medium transition-colors duration-200 tracking-wide ${
+                item.href === "/scan"
+                  ? "text-[#4a9eff] hover:text-[#6bb3ff]"
+                  : "text-white/45 hover:text-white"
+              }`}
             >
               {item.label}
             </a>
