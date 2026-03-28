@@ -1,0 +1,547 @@
+{
+  "last_update": "2026-03-28",
+  "car_model": "Audi A5 (F5) 2022",
+  "currency": "PLN",
+  "parts": [
+    {
+      "id": "lampa_przod_lewa",
+      "name": "Reflektor Matrix LED (Lewy)",
+      "category": "Oświetlenie",
+      "price_aso": 8500,
+      "price_market": 3800,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["przetwornica_led", "slizg_lampy"]
+    },
+    {
+      "id": "lampa_przod_prawa",
+      "name": "Reflektor Matrix LED (Prawy)",
+      "category": "Oświetlenie",
+      "price_aso": 8500,
+      "price_market": 3800,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["przetwornica_led", "slizg_lampy"]
+    },
+    {
+      "id": "halogeny_przod",
+      "name": "Zestaw świateł przeciwmgielnych",
+      "category": "Oświetlenie",
+      "price_aso": 1800,
+      "price_market": 700,
+      "labor_cost": 250,
+      "repair_time_days": 1,
+      "hidden_risks": ["wiazka_elektryczna", "kratki_zderzaka"]
+    },
+    {
+      "id": "lampa_tyl_lewa_zew",
+      "name": "Lampa tył zewnętrzna (Lewa)",
+      "category": "Oświetlenie",
+      "price_aso": 2200,
+      "price_market": 1100,
+      "labor_cost": 150,
+      "repair_time_days": 1,
+      "hidden_risks": ["wtyczka_lampy"]
+    },
+    {
+      "id": "lampa_tyl_prawa_zew",
+      "name": "Lampa tył zewnętrzna (Prawa)",
+      "category": "Oświetlenie",
+      "price_aso": 2200,
+      "price_market": 1100,
+      "labor_cost": 150,
+      "repair_time_days": 1,
+      "hidden_risks": ["wtyczka_lampy"]
+    },
+    {
+      "id": "lampa_tyl_lewa_wew",
+      "name": "Lampa tył w klapę (Lewa)",
+      "category": "Oświetlenie",
+      "price_aso": 1900,
+      "price_market": 850,
+      "labor_cost": 200,
+      "repair_time_days": 1,
+      "hidden_risks": ["wiazka_klapy"]
+    },
+    {
+      "id": "lampa_tyl_prawa_wew",
+      "name": "Lampa tył w klapę (Prawa)",
+      "category": "Oświetlenie",
+      "price_aso": 1900,
+      "price_market": 850,
+      "labor_cost": 200,
+      "repair_time_days": 1,
+      "hidden_risks": ["wiazka_klapy"]
+    },
+    {
+      "id": "zderzak_przod",
+      "name": "Zderzak przedni S-Line",
+      "category": "Karoseria",
+      "price_aso": 4800,
+      "price_market": 2200,
+      "labor_cost": 1200,
+      "repair_time_days": 3,
+      "hidden_risks": ["belka_zderzaka", "czujniki_pdc", "spryskiwacze", "radar_acc"]
+    },
+    {
+      "id": "zderzak_tyl",
+      "name": "Zderzak tylny S-Line",
+      "category": "Karoseria",
+      "price_aso": 4200,
+      "price_market": 1900,
+      "labor_cost": 1000,
+      "repair_time_days": 3,
+      "hidden_risks": ["slizgi_zderzaka", "czujniki_pdc", "wiazka_czujnikow"]
+    },
+    {
+      "id": "dyfuzor_tyl",
+      "name": "Dyfuzor zderzaka tył",
+      "category": "Karoseria",
+      "price_aso": 1500,
+      "price_market": 600,
+      "labor_cost": 200,
+      "repair_time_days": 1,
+      "hidden_risks": ["mocowania_wydechu"]
+    },
+    {
+      "id": "maska_silnika",
+      "name": "Maska silnika (Alu)",
+      "category": "Karoseria",
+      "price_aso": 5200,
+      "price_market": 2800,
+      "labor_cost": 900,
+      "repair_time_days": 3,
+      "hidden_risks": ["zawiasy_maski", "zamek_maski", "silowniki_maski"]
+    },
+    {
+      "id": "klapa_bagaznika",
+      "name": "Klapa bagażnika (Sportback)",
+      "category": "Karoseria",
+      "price_aso": 6100,
+      "price_market": 3200,
+      "labor_cost": 1100,
+      "repair_time_days": 3,
+      "hidden_risks": ["silowniki_klapy", "zawiasy", "zamek", "kamera_cofania"]
+    },
+    {
+      "id": "blotnik_przod_lewy",
+      "name": "Błotnik przedni lewy",
+      "category": "Karoseria",
+      "price_aso": 2400,
+      "price_market": 950,
+      "labor_cost": 700,
+      "repair_time_days": 2,
+      "hidden_risks": ["nadkole_plastikowe", "slizg_blotnika"]
+    },
+    {
+      "id": "blotnik_przod_prawy",
+      "name": "Błotnik przedni prawy",
+      "category": "Karoseria",
+      "price_aso": 2400,
+      "price_market": 950,
+      "labor_cost": 700,
+      "repair_time_days": 2,
+      "hidden_risks": ["nadkole_plastikowe", "slizg_blotnika", "zbiornik_spryskiwaczy"]
+    },
+    {
+      "id": "cwiartka_tyl_lewa",
+      "name": "Poszycie błotnika tył (Lewe)",
+      "category": "Karoseria",
+      "price_aso": 6500,
+      "price_market": 2500,
+      "labor_cost": 3500,
+      "repair_time_days": 7,
+      "hidden_risks": ["nadkole_wewnetrzne", "wlew_paliwa"]
+    },
+    {
+      "id": "cwiartka_tyl_prawa",
+      "name": "Poszycie błotnika tył (Prawe)",
+      "category": "Karoseria",
+      "price_aso": 6500,
+      "price_market": 2500,
+      "labor_cost": 3500,
+      "repair_time_days": 7,
+      "hidden_risks": ["nadkole_wewnetrzne"]
+    },
+    {
+      "id": "drzwi_przod_lewe",
+      "name": "Drzwi przednie lewe (gole)",
+      "category": "Karoseria",
+      "price_aso": 4500,
+      "price_market": 1800,
+      "labor_cost": 1000,
+      "repair_time_days": 3,
+      "hidden_risks": ["zawiasy_drzwi", "ogranicznik", "wiazka_drzwi"]
+    },
+    {
+      "id": "drzwi_przod_prawe",
+      "name": "Drzwi przednie prawe (gole)",
+      "category": "Karoseria",
+      "price_aso": 4500,
+      "price_market": 1800,
+      "labor_cost": 1000,
+      "repair_time_days": 3,
+      "hidden_risks": ["zawiasy_drzwi", "ogranicznik", "wiazka_drzwi"]
+    },
+    {
+      "id": "drzwi_tyl_lewe",
+      "name": "Drzwi tylne lewe (gole)",
+      "category": "Karoseria",
+      "price_aso": 4200,
+      "price_market": 1600,
+      "labor_cost": 900,
+      "repair_time_days": 3,
+      "hidden_risks": ["zawiasy_drzwi", "zamek_drzwi"]
+    },
+    {
+      "id": "drzwi_tyl_prawe",
+      "name": "Drzwi tylne prawe (gole)",
+      "category": "Karoseria",
+      "price_aso": 4200,
+      "price_market": 1600,
+      "labor_cost": 900,
+      "repair_time_days": 3,
+      "hidden_risks": ["zawiasy_drzwi", "zamek_drzwi"]
+    },
+    {
+      "id": "prog_lewy",
+      "name": "Próg boczny lewy S-Line",
+      "category": "Karoseria",
+      "price_aso": 1800,
+      "price_market": 750,
+      "labor_cost": 400,
+      "repair_time_days": 1,
+      "hidden_risks": ["spinki_progu", "poszycie_wewnetrzne"]
+    },
+    {
+      "id": "prog_prawy",
+      "name": "Próg boczny prawy S-Line",
+      "category": "Karoseria",
+      "price_aso": 1800,
+      "price_market": 750,
+      "labor_cost": 400,
+      "repair_time_days": 1,
+      "hidden_risks": ["spinki_progu", "poszycie_wewnetrzne"]
+    },
+    {
+      "id": "dach_poszycie",
+      "name": "Poszycie dachu",
+      "category": "Karoseria",
+      "price_aso": 7500,
+      "price_market": 3000,
+      "labor_cost": 4500,
+      "repair_time_days": 10,
+      "hidden_risks": ["podsufitka", "kurtyny_powietrzne", "szyberdach"]
+    },
+    {
+      "id": "grill_przod",
+      "name": "Atrapa chłodnicy (Grill)",
+      "category": "Karoseria",
+      "price_aso": 3800,
+      "price_market": 1500,
+      "labor_cost": 250,
+      "repair_time_days": 1,
+      "hidden_risks": ["znaczek_audi", "kamera_frontowa"]
+    },
+    {
+      "id": "lusterko_lewe",
+      "name": "Lusterko kompletne lewe (12 pin)",
+      "category": "Karoseria",
+      "price_aso": 2800,
+      "price_market": 1100,
+      "labor_cost": 200,
+      "repair_time_days": 1,
+      "hidden_risks": ["wiazka_drzwi", "modul_komfortu"]
+    },
+    {
+      "id": "lusterko_prawe",
+      "name": "Lusterko kompletne prawe (12 pin)",
+      "category": "Karoseria",
+      "price_aso": 2800,
+      "price_market": 1100,
+      "labor_cost": 200,
+      "repair_time_days": 1,
+      "hidden_risks": ["wiazka_drzwi", "czujnik_martwego_pola"]
+    },
+    {
+      "id": "szyba_czolowa",
+      "name": "Szyba czołowa (Akustyczna z kamerą)",
+      "category": "Szyby",
+      "price_aso": 4500,
+      "price_market": 1800,
+      "labor_cost": 600,
+      "repair_time_days": 1,
+      "hidden_risks": ["kalibracja_kamer_adas", "czujnik_deszczu", "uszczelka_szyby"]
+    },
+    {
+      "id": "szyba_tylna",
+      "name": "Szyba tylna",
+      "category": "Szyby",
+      "price_aso": 2800,
+      "price_market": 900,
+      "labor_cost": 500,
+      "repair_time_days": 1,
+      "hidden_risks": ["antena_radiowa", "ogrzewanie_szyby"]
+    },
+    {
+      "id": "szyba_drzwi_lewa_przod",
+      "name": "Szyba boczna kierowcy",
+      "category": "Szyby",
+      "price_aso": 1200,
+      "price_market": 400,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["podnosnik_szyby", "uszczelki_drzwi"]
+    },
+    {
+      "id": "szyba_drzwi_prawa_przod",
+      "name": "Szyba boczna pasażera",
+      "category": "Szyby",
+      "price_aso": 1200,
+      "price_market": 400,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["podnosnik_szyby", "uszczelki_drzwi"]
+    },
+    {
+      "id": "pas_przedni",
+      "name": "Pas przedni (Wzmocnienie czołowe)",
+      "category": "Mechanika",
+      "price_aso": 3200,
+      "price_market": 1400,
+      "labor_cost": 1500,
+      "repair_time_days": 2,
+      "hidden_risks": ["zamki_maski", "linki_maski"]
+    },
+    {
+      "id": "belka_zderzaka_przod",
+      "name": "Belka zderzaka przedniego",
+      "category": "Mechanika",
+      "price_aso": 1800,
+      "price_market": 650,
+      "labor_cost": 400,
+      "repair_time_days": 1,
+      "hidden_risks": ["absorbery_uderzenia", "podluznice"]
+    },
+    {
+      "id": "belka_zderzaka_tyl",
+      "name": "Belka zderzaka tylnego",
+      "category": "Mechanika",
+      "price_aso": 1600,
+      "price_market": 550,
+      "labor_cost": 350,
+      "repair_time_days": 1,
+      "hidden_risks": ["pas_tylny"]
+    },
+    {
+      "id": "chlodnica_wody",
+      "name": "Chłodnica wody głównej",
+      "category": "Mechanika",
+      "price_aso": 1400,
+      "price_market": 600,
+      "labor_cost": 500,
+      "repair_time_days": 1,
+      "hidden_risks": ["plyn_chlodniczy", "przewody_wodne"]
+    },
+    {
+      "id": "chlodnica_klimatyzacji",
+      "name": "Skraplacz (Chłodnica klimatyzacji)",
+      "category": "Mechanika",
+      "price_aso": 1900,
+      "price_market": 750,
+      "labor_cost": 600,
+      "repair_time_days": 1,
+      "hidden_risks": ["czynnik_klimatyzacji", "rurki_aluminiowe"]
+    },
+    {
+      "id": "intercooler",
+      "name": "Chłodnica powietrza (Intercooler)",
+      "category": "Mechanika",
+      "price_aso": 2100,
+      "price_market": 850,
+      "labor_cost": 500,
+      "repair_time_days": 1,
+      "hidden_risks": ["rury_dolotu", "czujnik_doladowania"]
+    },
+    {
+      "id": "wentylator_chlodnicy",
+      "name": "Zestaw wentylatorów chłodnicy",
+      "category": "Mechanika",
+      "price_aso": 3100,
+      "price_market": 1200,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["sterownik_wentylatora", "wiazka_glowna"]
+    },
+    {
+      "id": "radar_acc",
+      "name": "Radar tempomatu aktywnego ACC",
+      "category": "Elektronika",
+      "price_aso": 7500,
+      "price_market": 2800,
+      "labor_cost": 800,
+      "repair_time_days": 1,
+      "hidden_risks": ["kalibracja_radaru", "mocowanie_radaru"]
+    },
+    {
+      "id": "kamera_frontowa",
+      "name": "Kamera przednia (Grill)",
+      "category": "Elektronika",
+      "price_aso": 2200,
+      "price_market": 900,
+      "labor_cost": 400,
+      "repair_time_days": 1,
+      "hidden_risks": ["kalibracja_kamer_360", "wiazka_zderzaka"]
+    },
+    {
+      "id": "wahacz_gorny_lewy_przod",
+      "name": "Wahacz górny lewy przód",
+      "category": "Zawieszenie",
+      "price_aso": 1100,
+      "price_market": 450,
+      "labor_cost": 350,
+      "repair_time_days": 1,
+      "hidden_risks": ["geometria_kol", "sruba_mimosrodowa"]
+    },
+    {
+      "id": "wahacz_dolny_lewy_przod",
+      "name": "Wahacz dolny lewy przód",
+      "category": "Zawieszenie",
+      "price_aso": 1400,
+      "price_market": 550,
+      "labor_cost": 400,
+      "repair_time_days": 1,
+      "hidden_risks": ["geometria_kol", "sworzen_wahacza"]
+    },
+    {
+      "id": "amortyzator_lewy_przod",
+      "name": "Amortyzator lewy przód",
+      "category": "Zawieszenie",
+      "price_aso": 2800,
+      "price_market": 1200,
+      "labor_cost": 500,
+      "repair_time_days": 1,
+      "hidden_risks": ["lozysko_amortyzatora", "sprezyna_zawieszenia"]
+    },
+    {
+      "id": "zwrotnica_lewa_przod",
+      "name": "Zwrotnica koła lewa przód",
+      "category": "Zawieszenie",
+      "price_aso": 3200,
+      "price_market": 1100,
+      "labor_cost": 800,
+      "repair_time_days": 2,
+      "hidden_risks": ["lozysko_kola", "piasta_kola", "czujnik_abs"]
+    },
+    {
+      "id": "polos_lewa_przod",
+      "name": "Półoś napędowa lewa przód",
+      "category": "Zawieszenie",
+      "price_aso": 4100,
+      "price_market": 1500,
+      "labor_cost": 600,
+      "repair_time_days": 1,
+      "hidden_risks": ["uszczelniacz_skrzyni", "przegub_zewnetrzny"]
+    },
+    {
+      "id": "przekladnia_kierownicza",
+      "name": "Maglownica (Przekładnia kierownicza)",
+      "category": "Zawieszenie",
+      "price_aso": 12500,
+      "price_market": 4500,
+      "labor_cost": 1800,
+      "repair_time_days": 2,
+      "hidden_risks": ["drazki_kierownicze", "koncowki_drazkow", "kalibracja_ukladu"]
+    },
+    {
+      "id": "felga_19_cali",
+      "name": "Felga aluminiowa 19\" S-Line",
+      "category": "Koła",
+      "price_aso": 4800,
+      "price_market": 1500,
+      "labor_cost": 100,
+      "repair_time_days": 1,
+      "hidden_risks": ["opona", "czujnik_cisnienia_tpms", "wywazenie"]
+    },
+    {
+      "id": "poduszka_kierowcy",
+      "name": "Poduszka powietrzna kierowcy (Kierownica)",
+      "category": "Bezpieczeństwo",
+      "price_aso": 4500,
+      "price_market": 1800,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["tasma_airbag", "sensor_airbag"]
+    },
+    {
+      "id": "poduszka_pasazera",
+      "name": "Poduszka powietrzna pasażera",
+      "category": "Bezpieczeństwo",
+      "price_aso": 5800,
+      "price_market": 2200,
+      "labor_cost": 800,
+      "repair_time_days": 2,
+      "hidden_risks": ["deska_rozdzielcza", "sensor_airbag"]
+    },
+    {
+      "id": "deska_rozdzielcza",
+      "name": "Konsola (Deska rozdzielcza)",
+      "category": "Wnętrze",
+      "price_aso": 14000,
+      "price_market": 4500,
+      "labor_cost": 2500,
+      "repair_time_days": 4,
+      "hidden_risks": ["wiazki_kabiny", "nawiewy"]
+    },
+    {
+      "id": "napinacz_pasa_lewy",
+      "name": "Pas bezpieczeństwa lewy (Napinacz)",
+      "category": "Bezpieczeństwo",
+      "price_aso": 2200,
+      "price_market": 800,
+      "labor_cost": 400,
+      "repair_time_days": 1,
+      "hidden_risks": ["sensor_zderzeniowy_boczny", "plastiki_slupka_b"]
+    },
+    {
+      "id": "kurtyna_powietrzna_lewa",
+      "name": "Kurtyna powietrzna lewa",
+      "category": "Bezpieczeństwo",
+      "price_aso": 3800,
+      "price_market": 1200,
+      "labor_cost": 1200,
+      "repair_time_days": 2,
+      "hidden_risks": ["podsufitka", "plastiki_slupkow"]
+    },
+    {
+      "id": "obudowa_filtra_powietrza",
+      "name": "Obudowa filtra powietrza",
+      "category": "Silnik",
+      "price_aso": 850,
+      "price_market": 350,
+      "labor_cost": 150,
+      "repair_time_days": 1,
+      "hidden_risks": ["przeplywomierz", "rury_ssace"]
+    },
+    {
+      "id": "zbiorniczek_spryskiwaczy",
+      "name": "Zbiornik płynu spryskiwaczy",
+      "category": "Silnik",
+      "price_aso": 650,
+      "price_market": 250,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["pompka_spryskiwaczy", "czujnik_poziomu_plynu"]
+    },
+    {
+      "id": "oslona_pod_silnik",
+      "name": "Osłona dolna silnika",
+      "category": "Karoseria",
+      "price_aso": 1100,
+      "price_market": 350,
+      "labor_cost": 150,
+      "repair_time_days": 1,
+      "hidden_risks": ["nadkola_dolne", "spinki_montazowe"]
+    }
+  ]
+}
