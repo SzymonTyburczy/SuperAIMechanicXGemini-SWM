@@ -3,9 +3,9 @@ services:
   fishjam:
     image: ghcr.io/fishjam-dev/fishjam:latest
     ports:
-      - "5002:5002"   # HTTP API
-      - "5003:5003"   # WebRTC signaling
-      - "49152-49162:49152-49162/udp"  # WebRTC media UDP ports
+      - "5002:5002" # HTTP API
+      - "5003:5003" # WebRTC signaling
+      - "49152-49162:49152-49162/udp" # WebRTC media UDP ports
     environment:
       FJ_HOST: "localhost:5002"
       FJ_SERVER_API_TOKEN: "development"
@@ -15,11 +15,6 @@ services:
       FJ_WEBRTC_TURN_LISTEN_IP: "0.0.0.0"
       FJ_WEBRTC_TURN_IP: "127.0.0.1"
       FJ_WEBRTC_TURN_PORT_RANGE: "49152-49162"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
     networks:
       - pitstop
 
@@ -27,18 +22,13 @@ services:
   smelter:
     image: ghcr.io/software-mansion/smelter:latest
     ports:
-      - "8081:8081"   # HTTP API
-      - "8083:8083"   # Output HLS stream
+      - "8081:8081" # HTTP API
+      - "8083:8083" # Output HLS stream
     volumes:
       - ./smelter_output:/output
     environment:
       SMELTER_API_PORT: "8081"
       SMELTER_FRAMERATE: "30"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/status"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
     networks:
       - pitstop
 
@@ -55,15 +45,28 @@ services:
       FISHJAM_API_TOKEN: "development"
       SMELTER_URL: "http://smelter:8081"
     depends_on:
-      fishjam:
-        condition: service_healthy
-      smelter:
-        condition: service_healthy
+      - fishjam
+      - smelter
     networks:
       - pitstop
     volumes:
       - ./backend:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ─── 4. FRONTEND Next.js ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: "http://localhost:8000"
+      NEXT_TELEMETRY_DISABLED: "1"
+    depends_on:
+      - backend
+    networks:
+      - pitstop
 
 networks:
   pitstop:
