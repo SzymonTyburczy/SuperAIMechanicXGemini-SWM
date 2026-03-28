@@ -9,7 +9,9 @@ import RepairReport from "@/components/RepairReport";
 const Viewer3D = lazy(() => import("@/components/Viewer3D"));
 
 export default function Home() {
-  const [phase, setPhase] = useState<"landing" | "analyzing" | "report">("landing");
+  const [phase, setPhase] = useState<"landing" | "analyzing" | "report">(
+    "landing",
+  );
   const [hasFiles, setHasFiles] = useState(false);
 
   const handleFilesReady = useCallback((files: unknown[]) => {
@@ -22,7 +24,9 @@ export default function Home() {
   const handleAnalysisComplete = useCallback(() => {
     setPhase("report");
     setTimeout(() => {
-      document.getElementById("viewer-section")?.scrollIntoView({ behavior: "smooth" });
+      document
+        .getElementById("viewer-section")
+        ?.scrollIntoView({ behavior: "smooth" });
     }, 200);
   }, []);
 
@@ -54,9 +58,9 @@ export default function Home() {
               </h1>
 
               <p className="text-base text-white/55 leading-relaxed mb-8 max-w-2xl mx-auto">
-                Upload photos of your damaged vehicle — AI detects visible and hidden
-                defects, finds cheaper parts on marketplaces, and compares workshops
-                in your area. Stop overpaying at the dealer.
+                Upload photos of your damaged vehicle — AI detects visible and
+                hidden defects, finds cheaper parts on marketplaces, and
+                compares workshops in your area. Stop overpaying at the dealer.
               </p>
 
               <div className="flex items-center justify-center gap-4 mb-8">
@@ -109,7 +113,9 @@ export default function Home() {
                   { value: "94%", label: "AI accuracy" },
                 ].map((stat) => (
                   <div key={stat.label}>
-                    <p className="text-xl font-semibold text-white">{stat.value}</p>
+                    <p className="text-xl font-semibold text-white">
+                      {stat.value}
+                    </p>
                     <p className="text-[11px] text-white/30 mt-1 tracking-wide uppercase">
                       {stat.label}
                     </p>
@@ -124,13 +130,15 @@ export default function Home() {
                 className="rounded-2xl overflow-hidden w-full"
                 style={{
                   border: "1px solid rgba(255,255,255,0.08)",
-                  maxWidth: 800,
+                  maxWidth: 1200,
                 }}
               >
                 <Suspense
                   fallback={
-                    <div className="flex items-center justify-center w-full rounded-2xl"
-                      style={{ background: "#2a2a2e", aspectRatio: "1/1" }}>
+                    <div
+                      className="flex items-center justify-center w-full rounded-2xl"
+                      style={{ background: "#2a2a2e", minHeight: 430 }}
+                    >
                       <div className="text-center">
                         <svg
                           className="animate-spin mx-auto mb-3"
@@ -149,7 +157,9 @@ export default function Home() {
                             strokeLinecap="round"
                           />
                         </svg>
-                        <p className="text-[11px] text-white/25">Loading 3D model…</p>
+                        <p className="text-[11px] text-white/25">
+                          Loading 3D model…
+                        </p>
                       </div>
                     </div>
                   }
@@ -167,13 +177,18 @@ export default function Home() {
         <section id="how" className="py-24 scroll-mt-20">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-2xl font-semibold mb-3 text-white">How it works</h2>
+              <h2 className="text-2xl font-semibold mb-3 text-white">
+                How it works
+              </h2>
               <p className="text-sm text-white/40">
                 Three steps to a precise repair estimate
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-px" style={{ background: "var(--border)" }}>
+            <div
+              className="grid md:grid-cols-3 gap-px"
+              style={{ background: "var(--border)" }}
+            >
               {[
                 {
                   num: "01",
@@ -191,15 +206,16 @@ export default function Home() {
                   desc: "Receive a report with cost estimates (marketplace vs dealer parts), workshop comparison, and repair timeline.",
                 },
               ].map((step) => (
-                <div
-                  key={step.num}
-                  className="p-8 bg-black"
-                >
+                <div key={step.num} className="p-8 bg-black">
                   <span className="text-[11px] font-mono text-white/20 tracking-widest">
                     {step.num}
                   </span>
-                  <h3 className="font-medium text-white mt-4 mb-2">{step.title}</h3>
-                  <p className="text-sm text-white/40 leading-relaxed">{step.desc}</p>
+                  <h3 className="font-medium text-white mt-4 mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-white/40 leading-relaxed">
+                    {step.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -216,7 +232,7 @@ export default function Home() {
       {phase === "report" && (
         <div className="pt-20">
           <section id="viewer-section" className="py-8 scroll-mt-20">
-            <div className="max-w-6xl mx-auto px-6">
+            <div className="max-w-[96rem] mx-auto px-6">
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-semibold mb-1 text-white">
@@ -243,7 +259,11 @@ export default function Home() {
                   fallback={
                     <div
                       className="flex items-center justify-center w-full mx-auto rounded-2xl"
-                      style={{ background: "#020204", aspectRatio: "1/1", maxWidth: "min(100%, 800px)" }}
+                      style={{
+                        background: "#020204",
+                        minHeight: 760,
+                        maxWidth: "min(100%, 1200px)",
+                      }}
                     >
                       <svg
                         className="animate-spin"
@@ -276,10 +296,19 @@ export default function Home() {
       )}
 
       {/* ─── FOOTER ─── */}
-      <footer className="mt-24 py-8" style={{ borderTop: "1px solid var(--border)" }}>
+      <footer
+        className="mt-24 py-8"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="opacity-50">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="opacity-50"
+            >
               <path
                 d="M12 2L3 7l9 5 9-5-9-5zM3 17l9 5 9-5M3 12l9 5 9-5"
                 stroke="white"
@@ -287,7 +316,9 @@ export default function Home() {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="text-[13px] font-medium text-white/50">AutoMechanic AI</span>
+            <span className="text-[13px] font-medium text-white/50">
+              AutoMechanic AI
+            </span>
           </div>
           <p className="text-[11px] text-white/25 text-center">
             Hackathon Demo · Prototype · Estimates are for demonstration only

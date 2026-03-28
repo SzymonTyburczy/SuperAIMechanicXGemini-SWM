@@ -2,7 +2,14 @@
 
 import { useRef, useState, useEffect, Suspense, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, useGLTF, Html, useProgress } from "@react-three/drei";
+import {
+  OrbitControls,
+  Environment,
+  ContactShadows,
+  useGLTF,
+  Html,
+  useProgress,
+} from "@react-three/drei";
 import * as THREE from "three";
 
 /* ─── Damage point data ─── */
@@ -60,22 +67,42 @@ const DAMAGE_POINTS = [
 ];
 
 type DamagePoint = (typeof DAMAGE_POINTS)[number];
-type DamagePointWithWorldPos = DamagePoint & { position: [number, number, number] };
+type DamagePointWithWorldPos = DamagePoint & {
+  position: [number, number, number];
+};
 
 /* ─── Loading indicator ─── */
 function Loader() {
   const { progress } = useProgress();
   return (
     <Html center>
-      <div style={{ color: "#fff", fontSize: 14, fontFamily: "Inter, sans-serif", textAlign: "center" }}>
-        <div style={{ 
-          width: 120, height: 2, background: "rgba(255,255,255,0.1)", 
-          borderRadius: 1, overflow: "hidden", marginBottom: 8 
-        }}>
-          <div style={{ 
-            width: `${progress}%`, height: "100%", 
-            background: "#fff", borderRadius: 1, transition: "width 0.3s" 
-          }} />
+      <div
+        style={{
+          color: "#fff",
+          fontSize: 14,
+          fontFamily: "Inter, sans-serif",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            width: 120,
+            height: 2,
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: 1,
+            overflow: "hidden",
+            marginBottom: 8,
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: "100%",
+              background: "#fff",
+              borderRadius: 1,
+              transition: "width 0.3s",
+            }}
+          />
         </div>
         <span style={{ fontSize: 11, opacity: 0.4 }}>Loading 3D model…</span>
       </div>
@@ -88,7 +115,11 @@ function StudioFloor() {
   return (
     <group>
       {/* Reflective floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.01, 0]}
+        receiveShadow
+      >
         <planeGeometry args={[80, 80]} />
         <meshStandardMaterial
           color="#2a2a2c"
@@ -114,7 +145,11 @@ function StudioFloor() {
 }
 
 /* ─── Auto-fitting car model — normalize any GLB to standard size ─── */
-function CarModel({ onBoundsReady }: { onBoundsReady?: (box: THREE.Box3) => void }) {
+function CarModel({
+  onBoundsReady,
+}: {
+  onBoundsReady?: (box: THREE.Box3) => void;
+}) {
   const { scene } = useGLTF("/car.glb");
   const groupRef = useRef<THREE.Group>(null);
 
@@ -156,9 +191,14 @@ function CarModel({ onBoundsReady }: { onBoundsReady?: (box: THREE.Box3) => void
         child.receiveShadow = true;
         const mesh = child as THREE.Mesh;
         if (mesh.material) {
-          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          const mats = Array.isArray(mesh.material)
+            ? mesh.material
+            : [mesh.material];
           mats.forEach((mat) => {
-            if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
+            if (
+              mat instanceof THREE.MeshStandardMaterial ||
+              mat instanceof THREE.MeshPhysicalMaterial
+            ) {
               mat.envMapIntensity = 2.0;
               mat.needsUpdate = true;
             }
@@ -169,7 +209,9 @@ function CarModel({ onBoundsReady }: { onBoundsReady?: (box: THREE.Box3) => void
 
     // Report final world-space bounding box
     const finalBox = new THREE.Box3().setFromObject(scene);
-    console.log(`[CarModel] final bounds: min=(${finalBox.min.x.toFixed(2)},${finalBox.min.y.toFixed(2)},${finalBox.min.z.toFixed(2)}) max=(${finalBox.max.x.toFixed(2)},${finalBox.max.y.toFixed(2)},${finalBox.max.z.toFixed(2)})`);
+    console.log(
+      `[CarModel] final bounds: min=(${finalBox.min.x.toFixed(2)},${finalBox.min.y.toFixed(2)},${finalBox.min.z.toFixed(2)}) max=(${finalBox.max.x.toFixed(2)},${finalBox.max.y.toFixed(2)},${finalBox.max.z.toFixed(2)})`,
+    );
     onBoundsReady?.(finalBox);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
@@ -200,7 +242,8 @@ function DamageMarker3D({
   useFrame((state) => {
     if (markerRef.current) {
       markerRef.current.position.y =
-        point.position[1] + Math.sin(state.clock.elapsedTime * 2 + point.position[0]) * 0.03;
+        point.position[1] +
+        Math.sin(state.clock.elapsedTime * 2 + point.position[0]) * 0.03;
     }
     if (ringRef.current) {
       const pulse = Math.sin(state.clock.elapsedTime * 3) * 0.15 + 1;
@@ -246,11 +289,19 @@ function DamageMarker3D({
       </mesh>
 
       {/* Point light glow */}
-      <pointLight color={severityColor} intensity={isSelected ? 0.5 : 0.2} distance={1.5} />
+      <pointLight
+        color={severityColor}
+        intensity={isSelected ? 0.5 : 0.2}
+        distance={1.5}
+      />
 
       {/* Label tooltip */}
       {(hovered || isSelected) && (
-        <Html position={[0, 0.25, 0]} center style={{ pointerEvents: "none", whiteSpace: "nowrap" }}>
+        <Html
+          position={[0, 0.25, 0]}
+          center
+          style={{ pointerEvents: "none", whiteSpace: "nowrap" }}
+        >
           <div
             style={{
               background: "rgba(0,0,0,0.85)",
@@ -294,9 +345,12 @@ function Scene({
     ? DAMAGE_POINTS.map((pt) => ({
         ...pt,
         position: [
-          carBounds.min.x + pt.relPosition[0] * (carBounds.max.x - carBounds.min.x),
-          carBounds.min.y + pt.relPosition[1] * (carBounds.max.y - carBounds.min.y),
-          carBounds.min.z + pt.relPosition[2] * (carBounds.max.z - carBounds.min.z),
+          carBounds.min.x +
+            pt.relPosition[0] * (carBounds.max.x - carBounds.min.x),
+          carBounds.min.y +
+            pt.relPosition[1] * (carBounds.max.y - carBounds.min.y),
+          carBounds.min.z +
+            pt.relPosition[2] * (carBounds.max.z - carBounds.min.z),
         ] as [number, number, number],
       }))
     : [];
@@ -319,7 +373,11 @@ function Scene({
       />
 
       {/* RIM light — left, cool */}
-      <directionalLight position={[-10, 6, -5]} intensity={3.0} color="#c0d0f0" />
+      <directionalLight
+        position={[-10, 6, -5]}
+        intensity={3.0}
+        color="#c0d0f0"
+      />
 
       {/* FILL light — right, warm */}
       <directionalLight position={[8, 5, 6]} intensity={2.5} color="#f0e8d0" />
@@ -328,10 +386,20 @@ function Scene({
       <directionalLight position={[0, 4, 10]} intensity={2.0} color="#e8ecf4" />
 
       {/* Back accent — subtle blue */}
-      <pointLight position={[0, 2, -10]} intensity={1.5} color="#4488cc" distance={20} />
+      <pointLight
+        position={[0, 2, -10]}
+        intensity={1.5}
+        color="#4488cc"
+        distance={20}
+      />
 
       {/* Under-car fill light */}
-      <pointLight position={[0, -1, 0]} intensity={0.5} color="#ffffff" distance={8} />
+      <pointLight
+        position={[0, -1, 0]}
+        intensity={0.5}
+        color="#ffffff"
+        distance={8}
+      />
 
       {/* Environment — studio HDRI as background */}
       <Environment preset="studio" background environmentIntensity={1.0} />
@@ -341,7 +409,9 @@ function Scene({
       <CarModel onBoundsReady={handleBoundsReady} />
 
       {/* Interactive damage markers — only after bounds ready */}
-      {showDamageMarkers && hasBodyDamage && carBounds &&
+      {showDamageMarkers &&
+        hasBodyDamage &&
+        carBounds &&
         markersWithWorldPos.map((point) => (
           <DamageMarker3D
             key={point.id}
@@ -390,49 +460,90 @@ function DamageInfoPanel({
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: severityColor }} />
+          <span
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ background: severityColor }}
+          />
           <h4 className="font-semibold text-sm text-white">{point.label}</h4>
         </div>
-        <button onClick={onClose} className="text-white/30 hover:text-white/70 transition-colors text-lg leading-none">×</button>
+        <button
+          onClick={onClose}
+          className="text-white/30 hover:text-white/70 transition-colors text-lg leading-none"
+        >
+          ×
+        </button>
       </div>
 
       {/* Severity */}
       <span
         className="inline-block text-[10px] font-medium px-2 py-0.5 rounded-full mb-3"
-        style={{ color: severityColor, background: `${severityColor}15`, border: `1px solid ${severityColor}30` }}
+        style={{
+          color: severityColor,
+          background: `${severityColor}15`,
+          border: `1px solid ${severityColor}30`,
+        }}
       >
         {severityLabel}
       </span>
 
       {/* Description */}
-      <p className="text-xs text-white/50 mb-4 leading-relaxed">{point.description}</p>
+      <p className="text-xs text-white/50 mb-4 leading-relaxed">
+        {point.description}
+      </p>
 
       {/* Prices */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between p-3 rounded-lg"
-          style={{ background: "rgba(229, 77, 77, 0.06)", border: "1px solid rgba(229, 77, 77, 0.12)" }}>
+        <div
+          className="flex items-center justify-between p-3 rounded-lg"
+          style={{
+            background: "rgba(229, 77, 77, 0.06)",
+            border: "1px solid rgba(229, 77, 77, 0.12)",
+          }}
+        >
           <div>
-            <p className="text-[10px] text-white/35 mb-0.5">Authorized dealer</p>
-            <p className="text-sm font-semibold text-[#e54d4d]">{point.dealerPrice.toLocaleString("en-US")} zł</p>
+            <p className="text-[10px] text-white/35 mb-0.5">
+              Authorized dealer
+            </p>
+            <p className="text-sm font-semibold text-[#e54d4d]">
+              {point.dealerPrice.toLocaleString("en-US")} zł
+            </p>
           </div>
-          <span className="text-[10px] text-white/20 uppercase tracking-wider">OEM</span>
+          <span className="text-[10px] text-white/20 uppercase tracking-wider">
+            OEM
+          </span>
         </div>
 
         {point.marketplacePrice > 0 ? (
-          <div className="flex items-center justify-between p-3 rounded-lg"
-            style={{ background: "rgba(76, 175, 120, 0.06)", border: "1px solid rgba(76, 175, 120, 0.12)" }}>
+          <div
+            className="flex items-center justify-between p-3 rounded-lg"
+            style={{
+              background: "rgba(76, 175, 120, 0.06)",
+              border: "1px solid rgba(76, 175, 120, 0.12)",
+            }}
+          >
             <div>
               <p className="text-[10px] text-white/35 mb-0.5">Marketplace</p>
-              <p className="text-sm font-semibold text-[#4caf78]">{point.marketplacePrice.toLocaleString("en-US")} zł</p>
+              <p className="text-sm font-semibold text-[#4caf78]">
+                {point.marketplacePrice.toLocaleString("en-US")} zł
+              </p>
             </div>
-            <span className="text-[10px] text-[#4caf78]/60 font-medium">−{savings.toLocaleString("en-US")} zł</span>
+            <span className="text-[10px] text-[#4caf78]/60 font-medium">
+              −{savings.toLocaleString("en-US")} zł
+            </span>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-3 rounded-lg"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div
+            className="flex items-center justify-between p-3 rounded-lg"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
             <div>
               <p className="text-[10px] text-white/35 mb-0.5">Marketplace</p>
-              <p className="text-xs text-white/40">Service work only — no parts needed</p>
+              <p className="text-xs text-white/40">
+                Service work only — no parts needed
+              </p>
             </div>
           </div>
         )}
@@ -442,7 +553,11 @@ function DamageInfoPanel({
 }
 
 /* ─── Main Viewer3D component ─── */
-export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boolean }) {
+export default function Viewer3D({
+  hasBodyDamage = true,
+}: {
+  hasBodyDamage?: boolean;
+}) {
   const [showMarkers, setShowMarkers] = useState(true);
   const [selectedDamage, setSelectedDamage] = useState<string | null>(null);
 
@@ -450,22 +565,28 @@ export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boo
     setSelectedDamage((prev) => (prev === id ? null : id));
   }, []);
 
-  const selectedPoint = DAMAGE_POINTS.find((p) => p.id === selectedDamage) || null;
+  const selectedPoint =
+    DAMAGE_POINTS.find((p) => p.id === selectedDamage) || null;
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: "1 / 1" }}>
+    <div className="relative w-full h-[420px] sm:h-[560px] lg:h-[760px] xl:h-[860px]">
       {/* Canvas */}
       <div className="absolute inset-0 viewer-3d rounded-2xl overflow-hidden">
         <Canvas
           shadows
-          camera={{ position: [3.2, 1.3, 3.2], fov: 40, near: 0.1, far: 200 }}
+          camera={{ position: [3.6, 0.85, 4.2], fov: 38, near: 0.1, far: 200 }}
           gl={{
             antialias: true,
             alpha: false,
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 1.6,
           }}
-          style={{ background: "#2a2a2e" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+            background: "#2a2a2e",
+          }}
         >
           <Suspense fallback={<Loader />}>
             <Scene
@@ -476,13 +597,13 @@ export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boo
             />
             <OrbitControls
               enablePan={false}
-              minPolarAngle={0.3}
+              minPolarAngle={0.2}
               maxPolarAngle={Math.PI / 2 - 0.05}
-              minDistance={2}
-              maxDistance={12}
+              minDistance={1.8}
+              maxDistance={9}
               autoRotate
               autoRotateSpeed={0.4}
-              target={[0, 0.75, 0]}
+              target={[0, 0.35, 0]}
             />
           </Suspense>
         </Canvas>
@@ -491,8 +612,12 @@ export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boo
       {/* Top overlay — car info + controls */}
       <div className="absolute top-4 left-5 right-5 flex items-start justify-between pointer-events-none z-10">
         <div className="pointer-events-auto">
-          <p className="text-xs font-medium text-white/80 tracking-wide">Audi A5 Sportback · 2022</p>
-          <p className="text-[10px] text-white/35 mt-0.5">Click damage markers for price details</p>
+          <p className="text-xs font-medium text-white/80 tracking-wide">
+            Audi A5 Sportback · 2022
+          </p>
+          <p className="text-[10px] text-white/35 mt-0.5">
+            Click damage markers for price details
+          </p>
         </div>
 
         <div className="flex gap-2 pointer-events-auto">
@@ -504,8 +629,12 @@ export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boo
             }}
             className="px-3 py-1.5 rounded-md text-[11px] font-medium transition-all"
             style={{
-              background: showMarkers ? "rgba(229, 77, 77, 0.18)" : "rgba(255,255,255,0.08)",
-              border: showMarkers ? "1px solid rgba(229, 77, 77, 0.35)" : "1px solid rgba(255,255,255,0.15)",
+              background: showMarkers
+                ? "rgba(229, 77, 77, 0.18)"
+                : "rgba(255,255,255,0.08)",
+              border: showMarkers
+                ? "1px solid rgba(229, 77, 77, 0.35)"
+                : "1px solid rgba(255,255,255,0.15)",
               color: showMarkers ? "#e54d4d" : "rgba(255,255,255,0.6)",
             }}
           >
@@ -528,17 +657,33 @@ export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boo
             Detected damage ({DAMAGE_POINTS.length})
           </p>
           {DAMAGE_POINTS.map((point) => {
-            const severityColor = { high: "#e54d4d", medium: "#d4a346", low: "#4caf78" }[point.severity];
+            const severityColor = {
+              high: "#e54d4d",
+              medium: "#d4a346",
+              low: "#4caf78",
+            }[point.severity];
             const isActive = selectedDamage === point.id;
             return (
               <button
                 key={point.id}
                 onClick={() => handleSelectDamage(point.id)}
                 className="flex items-center gap-2 mb-1 last:mb-0 w-full text-left transition-all rounded px-1.5 py-0.5 -ml-1.5"
-                style={{ background: isActive ? "rgba(255,255,255,0.08)" : "transparent" }}
+                style={{
+                  background: isActive
+                    ? "rgba(255,255,255,0.08)"
+                    : "transparent",
+                }}
               >
-                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: severityColor }} />
-                <span className="text-[11px] transition-colors" style={{ color: isActive ? "#fff" : "rgba(255,255,255,0.55)" }}>
+                <div
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ background: severityColor }}
+                />
+                <span
+                  className="text-[11px] transition-colors"
+                  style={{
+                    color: isActive ? "#fff" : "rgba(255,255,255,0.55)",
+                  }}
+                >
                   {point.label}
                 </span>
               </button>
@@ -550,7 +695,10 @@ export default function Viewer3D({ hasBodyDamage = true }: { hasBodyDamage?: boo
       {/* Price popup — bottom right */}
       {selectedPoint && (
         <div className="absolute bottom-8 right-5 z-20">
-          <DamageInfoPanel point={selectedPoint} onClose={() => setSelectedDamage(null)} />
+          <DamageInfoPanel
+            point={selectedPoint}
+            onClose={() => setSelectedDamage(null)}
+          />
         </div>
       )}
     </div>

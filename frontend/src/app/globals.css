@@ -6,10 +6,10 @@
   --bg-secondary: #050505;
   --bg-card: #0a0a0a;
   --bg-card-hover: #111111;
-  --border: rgba(255, 255, 255, 0.10);
-  --border-strong: rgba(255, 255, 255, 0.20);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.60);
+  --text-secondary: rgba(255, 255, 255, 0.6);
   --text-muted: rgba(255, 255, 255, 0.35);
   --accent: #4a9eff;
   --accent-soft: rgba(74, 158, 255, 0.12);
@@ -19,7 +19,9 @@
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -28,7 +30,12 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
@@ -38,10 +45,19 @@ body {
 }
 
 /* Scrollbar — minimal */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
 
 /* Surface card */
 .surface {
@@ -50,7 +66,9 @@ body {
 }
 
 .surface-hover {
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 .surface-hover:hover {
   background: var(--bg-card-hover);
@@ -76,8 +94,8 @@ body {
   white-space: nowrap;
 }
 .ghost-btn:hover {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.40);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Solid button — STRONG CONTRAST */
@@ -119,10 +137,22 @@ body {
   background: transparent;
 }
 
-.badge-severity-high { color: var(--severity-high); border-color: rgba(229, 77, 77, 0.25); }
-.badge-severity-medium { color: var(--severity-medium); border-color: rgba(212, 163, 70, 0.25); }
-.badge-severity-low { color: var(--severity-low); border-color: rgba(76, 175, 120, 0.25); }
-.badge-accent { color: var(--accent); border-color: var(--accent-soft); }
+.badge-severity-high {
+  color: var(--severity-high);
+  border-color: rgba(229, 77, 77, 0.25);
+}
+.badge-severity-medium {
+  color: var(--severity-medium);
+  border-color: rgba(212, 163, 70, 0.25);
+}
+.badge-severity-low {
+  color: var(--severity-low);
+  border-color: rgba(76, 175, 120, 0.25);
+}
+.badge-accent {
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
 
 /* Progress bar */
 .progress-bar {
@@ -142,8 +172,9 @@ body {
   border: 1px dashed rgba(255, 255, 255, 0.18);
   transition: all 0.3s ease;
 }
-.upload-zone:hover, .upload-zone.dragging {
-  border-color: rgba(255, 255, 255, 0.40);
+.upload-zone:hover,
+.upload-zone.dragging {
+  border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -164,14 +195,19 @@ body {
   color: rgba(255, 255, 255, 0.25);
 }
 .form-input:focus {
-  border-color: rgba(255, 255, 255, 0.40);
-  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Animations — subtle */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes slide-up {
@@ -186,29 +222,59 @@ body {
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.6); opacity: 0; }
-  100% { transform: scale(1); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 
-.animate-float { animation: float 4s ease-in-out infinite; }
-.animate-slide-up { animation: slide-up 0.5s ease-out forwards; }
-.animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
 
 /* 3D Viewer — clean, no vignette */
 .viewer-3d {
   position: relative;
   overflow: hidden;
+}
+
+.viewer-3d > div,
+.viewer-3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
 /* Damage popup — overlays the 3D canvas */
@@ -228,7 +294,9 @@ body {
 
 /* Hover card — subtle lift */
 .hover-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 .hover-card:hover {
   transform: translateY(-1px);
@@ -237,8 +305,12 @@ body {
 
 /* Ring chart animation */
 @keyframes ring-fill {
-  from { stroke-dasharray: 0, 251; }
-  to { stroke-dasharray: var(--ring-value, 251), 251; }
+  from {
+    stroke-dasharray: 0, 251;
+  }
+  to {
+    stroke-dasharray: var(--ring-value, 251), 251;
+  }
 }
 .ring-animate {
   animation: ring-fill 1.5s ease-out forwards;
