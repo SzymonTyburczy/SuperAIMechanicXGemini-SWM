@@ -1,0 +1,51 @@
+{
+  "city": "Kraków",
+  "labor_rate_avg": 180,
+  "shops": [
+    {
+      "id": "workshop_001",
+      "name": "Auto-Mix Czyżyny",
+      "district": "Czyżyny",
+      "coordinates": { "lat": 50.068, "lng": 20.006 },
+      "specialization": ["Lakiernictwo", "Blacharstwo"],
+      "rating": 4.8,
+      "price_level": "medium",
+      "services": {
+        "painting_per_element": 750,
+        "bodywork_per_hour": 150,
+        "mechanical_per_hour": 120
+      },
+      "estimated_waiting_time_days": 5
+    },
+    {
+      "id": "workshop_002",
+      "name": "Krak-Serwis Podgórze",
+      "district": "Podgórze",
+      "coordinates": { "lat": 50.035, "lng": 19.954 },
+      "specialization": ["Mechanika", "Elektronika"],
+      "rating": 4.5,
+      "price_level": "low",
+      "services": {
+        "painting_per_element": 600,
+        "bodywork_per_hour": 130,
+        "mechanical_per_hour": 100
+      },
+      "estimated_waiting_time_days": 12
+    },
+    {
+      "id": "workshop_003",
+      "name": "Premium Paint Bronowice",
+      "district": "Bronowice",
+      "coordinates": { "lat": 50.082, "lng": 19.891 },
+      "specialization": ["Lakiernictwo Premium", "PDR"],
+      "rating": 4.9,
+      "price_level": "high",
+      "services": {
+        "painting_per_element": 1100,
+        "bodywork_per_hour": 250,
+        "mechanical_per_hour": 180
+      },
+      "estimated_waiting_time_days": 2
+    }
+  ]
+}
