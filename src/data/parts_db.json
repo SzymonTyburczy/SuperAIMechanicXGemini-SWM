@@ -1,0 +1,97 @@
+{
+  "last_update": "2026-03-28",
+  "car_model": "Audi A5 (F5) 2022",
+  "currency": "PLN",
+  "parts": [
+    {
+      "id": "lampa_przod_lewa",
+      "name": "Reflektor Matrix LED (Lewy)",
+      "category": "Oświetlenie",
+      "price_aso": 8500,
+      "price_market": 3800,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["przetwornica_led", "slizg_lampy"]
+    },
+    {
+      "id": "lampa_przod_prawa",
+      "name": "Reflektor Matrix LED (Prawy)",
+      "category": "Oświetlenie",
+      "price_aso": 8500,
+      "price_market": 3800,
+      "labor_cost": 300,
+      "repair_time_days": 1,
+      "hidden_risks": ["przetwornica_led", "slizg_lampy"]
+    },
+    {
+      "id": "zderzak_przod",
+      "name": "Zderzak przedni S-Line",
+      "category": "Karoseria",
+      "price_aso": 4800,
+      "price_market": 2200,
+      "labor_cost": 1200,
+      "repair_time_days": 3,
+      "hidden_risks": ["belka_zderzaka", "czujniki_pdc", "spryskiwacze"]
+    },
+    {
+      "id": "maska_silnika",
+      "name": "Maska silnika (Alu)",
+      "category": "Karoseria",
+      "price_aso": 5200,
+      "price_market": 2800,
+      "labor_cost": 900,
+      "repair_time_days": 3,
+      "hidden_risks": ["zawiasy_maski", "zamek_maski"]
+    },
+    {
+      "id": "blotnik_przod_lewy",
+      "name": "Błotnik przedni lewy",
+      "category": "Karoseria",
+      "price_aso": 2400,
+      "price_market": 950,
+      "labor_cost": 700,
+      "repair_time_days": 2,
+      "hidden_risks": ["nadkole_plastikowe", "slizg_blotnika"]
+    },
+    {
+      "id": "pas_przedni",
+      "name": "Pas przedni (Wzmocnienie)",
+      "category": "Mechanika",
+      "price_aso": 3200,
+      "price_market": 1400,
+      "labor_cost": 1500,
+      "repair_time_days": 2,
+      "hidden_risks": ["chlodnica_wody", "intercooler"]
+    },
+    {
+      "id": "chlodnica_wody",
+      "name": "Chłodnica wody",
+      "category": "Mechanika",
+      "price_aso": 1400,
+      "price_market": 600,
+      "labor_cost": 500,
+      "repair_time_days": 1,
+      "hidden_risks": ["wentylatory", "plyn_chlodniczy"]
+    },
+    {
+      "id": "drzwi_przod_lewe",
+      "name": "Drzwi przednie lewe",
+      "category": "Karoseria",
+      "price_aso": 4500,
+      "price_market": 1800,
+      "labor_cost": 1000,
+      "repair_time_days": 3,
+      "hidden_risks": ["lusterko_lewe", "szyba_boczna"]
+    },
+    {
+      "id": "lusterko_lewe",
+      "name": "Lusterko kompletne (12 pin)",
+      "category": "Karoseria",
+      "price_aso": 2800,
+      "price_market": 1100,
+      "labor_cost": 200,
+      "repair_time_days": 1,
+      "hidden_risks": ["wiazka_drzwi"]
+    }
+  ]
+}
