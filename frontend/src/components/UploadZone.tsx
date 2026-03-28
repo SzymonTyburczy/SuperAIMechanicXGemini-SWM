@@ -10,11 +10,15 @@ interface UploadedFile {
 }
 
 interface UploadZoneProps {
-  onFilesReady: (files: UploadedFile[]) => void;
+  onAnalyze: (payload: {
+    files: UploadedFile[];
+    carModel: string;
+    mileage: string;
+  }) => void;
   isAnalyzing: boolean;
 }
 
-export default function UploadZone({ onFilesReady, isAnalyzing }: UploadZoneProps) {
+export default function UploadZone({ onAnalyze, isAnalyzing }: UploadZoneProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [dragging, setDragging] = useState(false);
   const [carModel, setCarModel] = useState("Audi A5 2022");
@@ -49,7 +53,7 @@ export default function UploadZone({ onFilesReady, isAnalyzing }: UploadZoneProp
 
   const handleAnalyze = () => {
     if (files.length > 0) {
-      onFilesReady(files);
+      onAnalyze({ files, carModel, mileage });
     }
   };
 

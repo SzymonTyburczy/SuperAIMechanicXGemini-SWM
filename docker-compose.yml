@@ -47,6 +47,18 @@ services:
       - ./backend:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
+  # ─── 4. FRONTEND Next.js ────────────────────────────────────────────────
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE: "http://localhost:8000"
+    depends_on:
+      - backend
+    networks:
+      - pitstop
+
 networks:
   pitstop:
     driver: bridge

@@ -12,37 +12,202 @@ export default function Home() {
   const [phase, setPhase] = useState<"landing" | "analyzing" | "report">(
     "landing",
   );
-  const [hasFiles, setHasFiles] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [report, setReport] = useState<any | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
-  const handleFilesReady = useCallback((files: unknown[]) => {
-    if (files.length > 0) {
-      setHasFiles(true);
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+
+  const fileToBase64 = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1] ?? "";
+        resolve(base64);
+      };
+      reader.onerror = () => reject(new Error("Nie udało się odczytać pliku"));
+      reader.readAsDataURL(file);
+    });
+
+  const buildReportFromBackend = (data: any, carModel: string, mileage: string) => {
+    const analysis =
+      data?.damages && typeof data.damages === "object" && !Array.isArray(data.damages)
+        ? data.damages
+        : data;
+
+    const damages = Array.isArray(analysis?.damages) ? analysis.damages : [];
+    const hidden = Array.isArray(analysis?.hidden_damage_predictions)
+      ? analysis.hidden_damage_predictions
+      : [];
+
+    const mappedDamages = damages.map((dmg: any, idx: number) => {
+      const severity =
+        dmg?.severity === "high" || dmg?.severity === "low"
+          ? dmg.severity
+          : "medium";
+
+      return {
+        id: `d${idx + 1}`,
+        part: dmg?.part ?? "Unknown part",
+        type: dmg?.type ?? "Damage detected",
+        severity,
+        repair_cost_pln: Number(dmg?.repair_cost_pln ?? 0),
+        replace_cost_asm: Number(dmg?.replace_cost_asm ?? 0),
+        can_repair: Boolean(dmg?.can_repair),
+        bbox_hint: dmg?.bbox_hint ?? "",
+        confidence: Math.min(
+          98,
+          Math.max(
+            35,
+            Number.isFinite(Number(dmg?.repair_cost_pln))
+              ? 60 + (severity === "high" ? 20 : severity === "low" ? -10 : 0)
+              : 70,
+          ),
+        ),
+      };
+    });
+
+    const hiddenDamages = hidden.map((pred: any, idx: number) => ({
+      id: `h${idx + 1}`,
+      part: pred?.part ?? "Hidden damage",
+      probability_pct: Number(pred?.probability_pct ?? 50),
+      reason: pred?.reason ?? "Predicted hidden damage",
+      cost_pln: Number(pred?.cost_pln ?? 0),
+    }));
+
+    const totalMin =
+      Number(analysis?.total_repair_estimate_pln ?? 0) ||
+      mappedDamages.reduce(
+        (s: number, d: { repair_cost_pln: number }) => s + d.repair_cost_pln,
+        0,
+      );
+    const totalMax =
+      Number(analysis?.total_asm_estimate_pln ?? 0) ||
+      mappedDamages.reduce(
+        (s: number, d: { replace_cost_asm: number }) => s + d.replace_cost_asm,
+        0,
+      );
+    const savings = Math.max(0, totalMax - totalMin);
+
+    const severityScore = mappedDamages.reduce((acc: number, d: { severity: string }) => {
+      if (d.severity === "high") return acc + 3;
+      if (d.severity === "medium") return acc + 2;
+      return acc + 1;
+    }, 0);
+    const avgSeverity = mappedDamages.length ? severityScore / mappedDamages.length : 1;
+    const overallScore = Math.max(
+      20,
+      Math.min(95, Math.round(100 - avgSeverity * 18)),
+    );
+
+    const damageCount = mappedDamages.length;
+    const hiddenRiskAvg = hidden.length
+      ? Math.round(
+          hidden.reduce(
+            (sum: number, dmg: { probability_pct?: number }) =>
+              sum + Number(dmg.probability_pct ?? 0),
+            0,
+          ) /
+            hidden.length,
+        )
+      : 0;
+
+    return {
+      car: carModel || "Unknown",
+      analysisDate: new Date().toLocaleDateString("en-US"),
+      mileage: Number.isFinite(Number(mileage)) ? Number(mileage) : null,
+      overallScore,
+      totalCostMin: Math.max(0, totalMin),
+      totalCostMax: Math.max(0, totalMax),
+      marketplaceSavings: savings,
+      repairTimeWeeks: Math.max(1, Math.ceil(damageCount / 2) + (hiddenRiskAvg > 40 ? 1 : 0)),
+      damages: mappedDamages,
+      hiddenDamagePredictions: hidden,
+      summary: {
+        damageCount,
+        hiddenCount: hidden.length,
+        hiddenRiskAvg,
+      },
+      raw: analysis,
+    };
+  };
+
+  type AnalyzePayload = {
+    files: { file: File; type: "image" | "video" }[];
+    carModel: string;
+    mileage: string;
+  };
+
+  const handleAnalyze = useCallback(
+    async ({ files, carModel, mileage }: AnalyzePayload) => {
+      if (!files.length) return;
+      setIsAnalyzing(true);
+      setAnalysisError(null);
+      setReport(null);
       setPhase("analyzing");
-    }
-  }, []);
 
-  const handleAnalysisComplete = useCallback(() => {
-    setPhase("report");
-    setTimeout(() => {
-      document
-        .getElementById("viewer-section")
-        ?.scrollIntoView({ behavior: "smooth" });
-    }, 200);
-  }, []);
+      try {
+        const imageFile = files.find((f) => f.type === "image")?.file;
+        if (!imageFile) {
+          throw new Error(
+            "Dodaj przynajmniej jedno zdjęcie (wideo nie jest obsługiwane w analizie).",
+          );
+        }
+
+        const frameBase64 = await fileToBase64(imageFile);
+        const resp = await fetch(`${API_BASE}/api/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomId: "local-demo",
+            frameBase64,
+            carModel,
+          }),
+        });
+
+        if (!resp.ok) {
+          const message = await resp.text();
+          throw new Error(message || "Backend error");
+        }
+
+        const data = await resp.json();
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+        const nextReport = buildReportFromBackend(data, carModel, mileage);
+        setReport(nextReport);
+        setPhase("report");
+      } catch (err) {
+        setAnalysisError(
+          err instanceof Error
+            ? err.message
+            : "Nie udało się przeprowadzić analizy",
+        );
+        setReport(null);
+        setPhase("landing");
+      }
+      setIsAnalyzing(false);
+    },
+    [API_BASE],
+  );
 
   return (
     <div className="min-h-screen" style={{ background: "#000" }}>
       <Navbar />
 
       {/* Analysis loading overlay */}
-      {phase === "analyzing" && (
-        <AnalysisLoader onComplete={handleAnalysisComplete} />
-      )}
+      {phase === "analyzing" && <AnalysisLoader />}
 
       {/* ─── HERO ─── */}
       {phase === "landing" && (
         <section className="min-h-[100svh] flex flex-col pt-24 pb-12">
           <div className="max-w-7xl mx-auto px-6 w-full">
+            {analysisError && (
+              <div className="mb-6 rounded-xl border border-[#e54d4d]/30 bg-[#e54d4d]/10 p-4 text-[#e54d4d] text-sm text-left">
+                {analysisError}
+              </div>
+            )}
             {/* Top: text content */}
             <div className="animate-slide-up text-center mb-10">
               <div className="badge mb-6 mx-auto">
@@ -225,7 +390,7 @@ export default function Home() {
 
       {/* ─── UPLOAD ─── */}
       {phase === "landing" && (
-        <UploadZone onFilesReady={handleFilesReady} isAnalyzing={false} />
+        <UploadZone onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
       )}
 
       {/* ─── REPORT + 3D ─── */}
@@ -291,7 +456,14 @@ export default function Home() {
             </div>
           </section>
 
-          <RepairReport />
+          {analysisError && (
+            <div className="max-w-6xl mx-auto px-6 pb-4">
+              <div className="rounded-xl border border-[#e54d4d]/30 bg-[#e54d4d]/10 p-4 text-[#e54d4d] text-sm">
+                {analysisError}
+              </div>
+            </div>
+          )}
+          <RepairReport report={report} />
         </div>
       )}
 
